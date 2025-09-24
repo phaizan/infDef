@@ -1,9 +1,13 @@
 package com.example.infprotection;
 
+import lombok.Data;
+import lombok.experimental.Accessors;
 
+@Data
+@Accessors(chain = true)
 public class User {
-    public String login;
-    public String password;
-    public boolean isBlocked;
-    public boolean passwordRestrctions;
+    private String login;
+    private String password;
+    private boolean isBlocked;
+    private boolean passwordRestrctions;
 }
