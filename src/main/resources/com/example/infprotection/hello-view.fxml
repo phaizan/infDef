@@ -13,7 +13,6 @@
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-   <fx:include fx:id="loginPane" source="Login.fxml"/>
    <AnchorPane fx:id="loginForm" layoutX="97.0" layoutY="100.0" prefHeight="202.0" prefWidth="154.0" visible="false">
       <children>
          <Label layoutY="5.0" text="Введите логин:" />
@@ -28,24 +27,25 @@
          <VBox prefHeight="200.0" prefWidth="122.0" spacing="20.0">
             <children>
                <Button fx:id="changePassword" mnemonicParsing="false" onAction="#onChangePasswordClick" text="Сменить пароль" />
-               <Button fx:id="checkUsers" mnemonicParsing="false" onAction="#onChangePasswordClick" prefHeight="47.0" prefWidth="107.0" text="Просмотр пользователей" wrapText="true" />
+               <Button fx:id="checkUsers" mnemonicParsing="false" onAction="#onCheckUsersClick" prefHeight="47.0" prefWidth="107.0" text="Просмотр пользователей" wrapText="true" />
+               <Button fx:id="createUser" mnemonicParsing="false" onAction="#onCreateUserClick" prefHeight="47.0" prefWidth="107.0" text="Добавить пользователя" wrapText="true" />
+               <Button fx:id="exit" mnemonicParsing="false" onAction="#onExitClick" text="Выйти из системы" />
             </children>
          </VBox>
-         <Button fx:id="exit" layoutY="136.0" mnemonicParsing="false" onAction="#onExitClick" text="Выйти из системы" />
       </children>
    </AnchorPane>
-   <AnchorPane layoutX="74.0" layoutY="111.0" prefHeight="200.0" prefWidth="200.0">
+   <AnchorPane fx:id="checkUsersPanel" layoutX="31.0" layoutY="68.0" prefHeight="247.0" prefWidth="272.0" visible="false">
       <children>
-         <Label layoutX="2.0" layoutY="24.0" text="Имя пользователя" />
-         <TextField layoutX="51.0" layoutY="19.0" />
-         <Label layoutX="30.0" layoutY="60.0" text="Блокировка" />
-         <Label layoutX="30.0" layoutY="97.0" text="Пароль" />
-         <CheckBox contentDisplay="GRAPHIC_ONLY" layoutX="117.0" layoutY="60.0" mnemonicParsing="false" mouseTransparent="true" />
-         <CheckBox contentDisplay="GRAPHIC_ONLY" layoutX="87.0" layoutY="97.0" mnemonicParsing="false" mouseTransparent="true" />
-         <Button layoutX="9.0" layoutY="117.0" mnemonicParsing="false" text="Button" />
-         <Button layoutX="115.0" layoutY="116.0" mnemonicParsing="false" text="Button" />
-         <Button layoutX="8.0" layoutY="152.0" mnemonicParsing="false" text="Button" />
-         <Button layoutX="113.0" layoutY="151.0" mnemonicParsing="false" text="Button" />
+         <Label layoutX="3.0" layoutY="24.0" text="Имя пользователя:" />
+         <TextField fx:id="userLogin" layoutX="113.0" layoutY="20.0" prefHeight="26.0" prefWidth="157.0" />
+         <Label layoutX="3.0" layoutY="60.0" text="Блокировка" />
+         <Label layoutX="3.0" layoutY="96.0" text="Парольное ограничение" />
+         <CheckBox fx:id="isBlocked" contentDisplay="GRAPHIC_ONLY" layoutX="154.0" layoutY="61.0" mnemonicParsing="false" />
+         <CheckBox fx:id="passwordRestrctions" contentDisplay="GRAPHIC_ONLY" layoutX="154.0" layoutY="96.0" mnemonicParsing="false" />
+         <Button fx:id="nextUser" layoutX="3.0" layoutY="129.0" mnemonicParsing="false" onAction="#onNextUserClick" text="Следующий" />
+         <Button fx:id="saveUser" layoutX="159.0" layoutY="130.0" mnemonicParsing="false" onAction="#onSaveUserClick" prefHeight="26.0" prefWidth="81.0" text="Сохранить" />
+         <Button fx:id="ok" layoutX="3.0" layoutY="185.0" mnemonicParsing="false" onAction="#onOkClick" prefHeight="26.0" prefWidth="82.0" text="Ок" />
+         <Button fx:id="cancelUserView" layoutX="159.0" layoutY="183.0" mnemonicParsing="false" onAction="#onCancelUserViewClick" prefHeight="26.0" prefWidth="83.0" text="Отмена" />
       </children>
    </AnchorPane>
    <AnchorPane fx:id="passwordChangeForm" layoutX="81.0" layoutY="100.0" prefHeight="189.0" prefWidth="181.0" visible="false">
@@ -58,8 +58,16 @@
             </children>
          </VBox>
          <Button fx:id="changePasswordConfirm" layoutX="45.0" layoutY="126.0" mnemonicParsing="false" onAction="#onChangePasswordConfirmClick" text="Подтвердить" />
-         <Button fx:id="cancelChangePassword" layoutX="60.0" layoutY="159.0" mnemonicParsing="false" onAction="#onCancelChangePasswordClick" text="Отмена" />
+         <Button fx:id="cancelChangePassword" layoutX="60.0" layoutY="159.0" mnemonicParsing="false" onAction="#onCancelChangePasswordClick" text="Назад" />
       </children>
    </AnchorPane>
    <Label fx:id="message" layoutX="93.0" layoutY="21.0" maxHeight="1.7976931348623157E308" prefHeight="56.0" prefWidth="158.0" wrapText="true" />
+   <AnchorPane fx:id="addUserPanel" layoutX="41.0" layoutY="78.0" prefHeight="247.0" prefWidth="272.0">
+      <children>
+         <Label layoutX="3.0" layoutY="24.0" text="Имя пользователя:" />
+         <TextField fx:id="newUserName" layoutX="113.0" layoutY="20.0" prefHeight="26.0" prefWidth="157.0" />
+         <Button fx:id="addUser" layoutX="106.0" layoutY="165.0" mnemonicParsing="false" onAction="#onAddUserClick" text="Создать" />
+         <Button fx:id="cancelAddUser" layoutX="105.0" layoutY="199.0" mnemonicParsing="false" onAction="#onCancelAddUserClick" text="Отмена" />
+      </children>
+   </AnchorPane>
 </AnchorPane>

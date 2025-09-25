@@ -3,10 +3,7 @@ package com.example.infprotection;
 
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
@@ -39,6 +36,9 @@ public class LoginController {
     public AnchorPane adminPanel;
 
     @FXML
+    public AnchorPane checkUsersPanel;
+
+    @FXML
     public AnchorPane passwordChangeForm;
 
     @FXML
@@ -63,9 +63,47 @@ public class LoginController {
     public Button exit;
 
     @FXML
-    public AnchorPane loginPane;
+    public Button checkUsers;
+
+    @FXML
+    public TextField userLogin;
+
+    @FXML
+    public CheckBox isBlocked;
+
+    @FXML
+    public CheckBox passwordRestrctions;
+
+    @FXML
+    public Button nextUser;
+
+    @FXML
+    public Button saveUser;
+
+    @FXML
+    public Button ok;
+
+    @FXML
+    public Button cancelUserView;
+
+    @FXML
+    public AnchorPane addUserPanel;
+
+    @FXML
+    public Button createUser;
+
+    @FXML
+    public TextField newUserName;
+
+    @FXML
+    public Button addUser;
+
+    @FXML
+    public Button cancelAddUser;
 
     private User user;
+
+
 
     @FXML
     protected void onLoginButtonClick() {
@@ -74,8 +112,7 @@ public class LoginController {
         user = findUser(login.getText(), users);
         if (user != null)
             if (user.getPassword().equals(password.getText())) {
-                    message.setText("Привет " + user.getLogin());
-                if (user.getLogin().equals("ADMIN")) {
+                if (user.getLogin().equals("a")) {
                     showAdminPanel();
                 }
             }
@@ -94,12 +131,15 @@ public class LoginController {
             for (int i = 1; i < lines.size(); i++) {
                 String line = lines.get(i);
                 String[] parts = line.split(" ");
-                users.add(new User()
-                        .setLogin(parts[0])
-                        .setPassword(parts[1])
-                        .setBlocked(Boolean.parseBoolean(parts[2]))
-                        .setPasswordRestrctions(Boolean.parseBoolean(parts[3]))
-                );
+                if (parts.length == 4)
+                    users.add(new User()
+                            .setLogin(parts[0])
+                            .setPassword(parts[1])
+                            .setBlocked(Boolean.parseBoolean(parts[2]))
+                            .setPasswordRestrctions(Boolean.parseBoolean(parts[3])));
+                else
+                    users.add(new User()
+                            .setLogin(parts[0]));
             }
         } catch (IOException e) {
             System.out.println("Ошибка при чтении файла" + e.getMessage());
@@ -129,7 +169,7 @@ public class LoginController {
     private void onChangePasswordConfirmClick() {
         if (oldPassword.getText().equals(user.getPassword()))
             if (newPassword.getText().equals(passwordVerification.getText()))
-                if (user.isPasswordRestrctions() && isNewPasswordValid(newPassword.getText())) {
+                if (!user.isPasswordRestrctions() || isNewPasswordValid(newPassword.getText())) {
                     changeUserPassword(newPassword.getText());
                     message.setText("Пароль изменён");
                 }
@@ -157,6 +197,85 @@ public class LoginController {
         loginForm.setVisible(true);
     }
 
+    @FXML
+    private void onCheckUsersClick() {
+        message.setText("");
+        adminPanel.setVisible(false);
+        checkUsersPanel.setVisible(true);
+        List<User> users = getUsers();
+        int i = 1;
+        checkUsersPanel.setUserData(new Object[]{users, i});
+        userLogin.setText(users.get(i).getLogin());
+        isBlocked.setSelected(users.get(i).isBlocked());
+        passwordRestrctions.setSelected(users.get(i).isPasswordRestrctions());
+    }
+
+    @FXML
+    private void onNextUserClick() {
+        Object[] data = (Object[]) checkUsersPanel.getUserData();
+        List<User> users = (List<User>) data[0];
+        int i = (int) data[1];
+        if (++i > users.size() - 1)
+            i = 1;
+
+        checkUsersPanel.setUserData(new Object[]{users, i});
+        userLogin.setText(users.get(i).getLogin());
+        isBlocked.setSelected(users.get(i).isBlocked());
+        passwordRestrctions.setSelected(users.get(i).isPasswordRestrctions());
+    }
+
+    @FXML
+    private void onSaveUserClick() {
+        Object[] data = (Object[]) checkUsersPanel.getUserData();
+        List<User> users = (List<User>) data[0];
+        int i = (int) data[1];
+        User user = users.get(i);
+        user.setLogin(userLogin.getText());
+        user.setBlocked(isBlocked.isSelected());
+        user.setPasswordRestrctions(passwordRestrctions.isSelected());
+        try {
+            List<String> lines = Files.readAllLines(USERS_PATH);
+            lines.set(i + 1, user.getLogin() + " " + user.getPassword() + " " + user.isBlocked() + " " + user.isPasswordRestrctions());
+            rewriteFile(lines);
+        } catch (IOException e) {
+            System.out.println("Ошибка при чтении файла" + e.getMessage());
+        }
+
+    }
+
+    @FXML
+    private void onOkClick() {
+        onSaveUserClick();
+        onCancelUserViewClick();
+    }
+
+    @FXML
+    private void onCancelUserViewClick() {
+        checkUsersPanel.setVisible(false);
+        adminPanel.setVisible(true);
+    }
+
+    @FXML
+    private void onCreateUserClick() {
+        adminPanel.setVisible(false);
+        addUserPanel.setVisible(true);
+    }
+
+    @FXML
+    private void onAddUserClick() {
+        try {
+            Files.writeString(USERS_PATH, newUserName.getText() + System.lineSeparator(), StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            message.setText("Ошибка при записи нового пользователя в файл");
+        }
+    }
+
+    @FXML
+    private void onCancelAddUserClick() {
+        addUserPanel.setVisible(false);
+        adminPanel.setVisible(true);
+    }
+
     private void changeUserPassword (String newPassword)
     {
         try{
@@ -167,12 +286,22 @@ public class LoginController {
                 if (parts[0].equals(user.getLogin())) {
                     lines.set(i, parts[0] + " " + newPassword + " " + parts[2] + " " + parts[3]);
                     user.setPassword(newPassword);
-                    Files.write(USERS_PATH, lines, StandardOpenOption.TRUNCATE_EXISTING);
+                    rewriteFile(lines);
                     break;
                 }
             }
         } catch (IOException e) {
             System.out.println("Ошибка при чтении файла" + e.getMessage());
+        }
+    }
+
+    private void rewriteFile (List<String> lines)
+    {
+        try {
+            Files.write(USERS_PATH, lines, StandardOpenOption.TRUNCATE_EXISTING);
+
+        } catch (IOException e) {
+            System.out.println("Ошибка при записи в файл" + e.getMessage());
         }
     }
 

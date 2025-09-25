@@ -8,6 +8,6 @@ import lombok.experimental.Accessors;
 public class User {
     private String login;
     private String password;
-    private boolean isBlocked;
+    private boolean blocked;
     private boolean passwordRestrctions;
 }
