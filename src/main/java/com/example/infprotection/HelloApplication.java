@@ -15,12 +15,6 @@ public class HelloApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-
-        List<String> lines = Files.readAllLines(Path.of("users.txt"));
-        for (String line : lines) {
-            System.out.println(line);
-        }
-
         stage.setTitle("Вход в систему");
         stage.setScene(scene);
         stage.show();

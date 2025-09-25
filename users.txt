@@ -1,4 +1,4 @@
 login   password    isBlocked?      passwordRestrctions   (Наличие строчных и прописных букв, а также цифр.)
-ADMIN aDm1n 0 1
-phzn nzhp 0 0
-bork b0rK 0 1
+ADMIN xenia1sMyZhopka false true
+phzn nzhp false false
+bork b0rK false true
