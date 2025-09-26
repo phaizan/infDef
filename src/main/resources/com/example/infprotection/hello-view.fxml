@@ -13,7 +13,8 @@
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-   <AnchorPane fx:id="loginForm" layoutX="97.0" layoutY="100.0" prefHeight="202.0" prefWidth="154.0" visible="false">
+   <Label fx:id="message" layoutX="93.0" layoutY="21.0" maxHeight="1.7976931348623157E308" prefHeight="56.0" prefWidth="158.0" wrapText="true" />
+   <AnchorPane fx:id="loginForm" layoutX="97.0" layoutY="100.0" prefHeight="202.0" prefWidth="154.0">
       <children>
          <Label layoutY="5.0" text="Введите логин:" />
          <TextField fx:id="login" layoutY="30.0" promptText="Логин" />
@@ -22,7 +23,7 @@
           <Button fx:id="loginButton" alignment="CENTER" layoutX="33.0" layoutY="205.0" onAction="#onLoginButtonClick" prefHeight="30.0" prefWidth="84.0" text="Войти" />
       </children>
    </AnchorPane>
-   <AnchorPane fx:id="adminPanel" layoutX="88.0" layoutY="107.0" prefHeight="170.0" prefWidth="180.0" visible="false">
+   <AnchorPane fx:id="panel" layoutX="88.0" layoutY="107.0" prefHeight="170.0" prefWidth="180.0" visible="false">
       <children>
          <VBox prefHeight="200.0" prefWidth="122.0" spacing="20.0">
             <children>
@@ -61,13 +62,12 @@
          <Button fx:id="cancelChangePassword" layoutX="60.0" layoutY="159.0" mnemonicParsing="false" onAction="#onCancelChangePasswordClick" text="Назад" />
       </children>
    </AnchorPane>
-   <Label fx:id="message" layoutX="93.0" layoutY="21.0" maxHeight="1.7976931348623157E308" prefHeight="56.0" prefWidth="158.0" wrapText="true" />
-   <AnchorPane fx:id="addUserPanel" layoutX="41.0" layoutY="78.0" prefHeight="247.0" prefWidth="272.0">
+   <AnchorPane fx:id="addUserPanel" layoutX="41.0" layoutY="78.0" prefHeight="247.0" prefWidth="272.0" visible="false">
       <children>
          <Label layoutX="3.0" layoutY="24.0" text="Имя пользователя:" />
          <TextField fx:id="newUserName" layoutX="113.0" layoutY="20.0" prefHeight="26.0" prefWidth="157.0" />
          <Button fx:id="addUser" layoutX="106.0" layoutY="165.0" mnemonicParsing="false" onAction="#onAddUserClick" text="Создать" />
-         <Button fx:id="cancelAddUser" layoutX="105.0" layoutY="199.0" mnemonicParsing="false" onAction="#onCancelAddUserClick" text="Отмена" />
+         <Button fx:id="cancelAddUser" layoutX="105.0" layoutY="199.0" mnemonicParsing="false" onAction="#onCancelAddUserClick" text="Назад" />
       </children>
    </AnchorPane>
 </AnchorPane>

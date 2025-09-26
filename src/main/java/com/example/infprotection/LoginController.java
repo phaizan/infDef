@@ -17,6 +17,8 @@ public class LoginController {
 
     private static final Path USERS_PATH = Path.of("users.txt");
 
+    private User user;
+
     @FXML
     public TextField login;
 
@@ -33,7 +35,7 @@ public class LoginController {
     public AnchorPane loginForm;
 
     @FXML
-    public AnchorPane adminPanel;
+    public AnchorPane panel;
 
     @FXML
     public AnchorPane checkUsersPanel;
@@ -101,27 +103,32 @@ public class LoginController {
     @FXML
     public Button cancelAddUser;
 
-    private User user;
-
-
-
     @FXML
     protected void onLoginButtonClick() {
 
         List<User> users = getUsers();
         user = findUser(login.getText(), users);
         if (user != null)
-            if (user.getPassword().equals(password.getText())) {
-                if (user.getLogin().equals("a")) {
-                    showAdminPanel();
-                }
+            if (user.isBlocked()) {
+                message.setText("Вы заблокированы");
             }
-            else
+            else if (user.getPassword() == null) {
+                if (!password.getText().isEmpty()) {
+                    message.setText("Введён неправильный пароль");
+                    return;
+                }
+                initUserForm();
+            }
+            else if (!user.getPassword().equals(password.getText())) {
                 message.setText("Введён неправильный пароль");
-
-        else
+            }
+            else {
+                message.setText("");
+                showPanel();
+            }
+        else {
             message.setText("Пользователь с логином " + login.getText() + " не найден");
-
+        }
     }
 
     private List<User> getUsers() {
@@ -139,7 +146,9 @@ public class LoginController {
                             .setPasswordRestrctions(Boolean.parseBoolean(parts[3])));
                 else
                     users.add(new User()
-                            .setLogin(parts[0]));
+                            .setLogin(parts[0])
+                            .setBlocked(Boolean.parseBoolean(parts[1]))
+                            .setPasswordRestrctions(Boolean.parseBoolean(parts[2])));
             }
         } catch (IOException e) {
             System.out.println("Ошибка при чтении файла" + e.getMessage());
@@ -154,23 +163,37 @@ public class LoginController {
         return null;
     }
 
-    private void showAdminPanel() {
+    private void showPanel() {
+        if (user.getLogin().equals("a")) {
+            checkUsers.setVisible(true);
+            createUser.setVisible(true);
+        }
+        else {
+            checkUsers.setVisible(false);
+            createUser.setVisible(false);
+        }
         loginForm.setVisible(false);
-        adminPanel.setVisible(true);
+        panel.setVisible(true);
     }
 
     @FXML
     private void onChangePasswordClick() {
-        adminPanel.setVisible(false);
+        message.setText("");
+        panel.setVisible(false);
         passwordChangeForm.setVisible(true);
+        oldPassword.setVisible(true);
+        cancelChangePassword.setVisible(true);
     }
 
     @FXML
     private void onChangePasswordConfirmClick() {
-        if (oldPassword.getText().equals(user.getPassword()))
+
+        if (!oldPassword.isVisible() && user.getPassword() == null || oldPassword.getText().equals(user.getPassword()))
             if (newPassword.getText().equals(passwordVerification.getText()))
                 if (!user.isPasswordRestrctions() || isNewPasswordValid(newPassword.getText())) {
                     changeUserPassword(newPassword.getText());
+                    passwordChangeForm.setVisible(false);
+                    showPanel();
                     message.setText("Пароль изменён");
                 }
                 else {
@@ -181,26 +204,35 @@ public class LoginController {
                 message.setText("Новые пароли не совпадают");
         else
             message.setText("Неправильно введён старый пароль");
+        oldPassword.setText("");
+        newPassword.setText("");
+        changePasswordConfirm.setText("");
     }
 
     @FXML
     private void onCancelChangePasswordClick() {
+
+
+        passwordVerification.setText("");
+        message.setText("");
         passwordChangeForm.setVisible(false);
-        adminPanel.setVisible(true);
+        panel.setVisible(true);
     }
 
     @FXML
     private void onExitClick() {
         user = null;
+        login.setText("");
+        password.setText("");
         message.setText("");
-        adminPanel.setVisible(false);
+        panel.setVisible(false);
         loginForm.setVisible(true);
     }
 
     @FXML
     private void onCheckUsersClick() {
         message.setText("");
-        adminPanel.setVisible(false);
+        panel.setVisible(false);
         checkUsersPanel.setVisible(true);
         List<User> users = getUsers();
         int i = 1;
@@ -212,12 +244,12 @@ public class LoginController {
 
     @FXML
     private void onNextUserClick() {
+        message.setText("");
         Object[] data = (Object[]) checkUsersPanel.getUserData();
         List<User> users = (List<User>) data[0];
         int i = (int) data[1];
         if (++i > users.size() - 1)
             i = 1;
-
         checkUsersPanel.setUserData(new Object[]{users, i});
         userLogin.setText(users.get(i).getLogin());
         isBlocked.setSelected(users.get(i).isBlocked());
@@ -235,8 +267,9 @@ public class LoginController {
         user.setPasswordRestrctions(passwordRestrctions.isSelected());
         try {
             List<String> lines = Files.readAllLines(USERS_PATH);
-            lines.set(i + 1, user.getLogin() + " " + user.getPassword() + " " + user.isBlocked() + " " + user.isPasswordRestrctions());
+            lines.set(i + 1, user.getLogin() + (user.getPassword() != null ? " " + user.getPassword() : "") + " " + user.isBlocked() + " " + user.isPasswordRestrctions());
             rewriteFile(lines);
+            message.setText("Данные обновлены");
         } catch (IOException e) {
             System.out.println("Ошибка при чтении файла" + e.getMessage());
         }
@@ -245,35 +278,54 @@ public class LoginController {
 
     @FXML
     private void onOkClick() {
+        message.setText("");
         onSaveUserClick();
         onCancelUserViewClick();
     }
 
     @FXML
     private void onCancelUserViewClick() {
+        message.setText("");
         checkUsersPanel.setVisible(false);
-        adminPanel.setVisible(true);
+        panel.setVisible(true);
     }
 
     @FXML
     private void onCreateUserClick() {
-        adminPanel.setVisible(false);
+        message.setText("");
+        panel.setVisible(false);
         addUserPanel.setVisible(true);
     }
 
     @FXML
     private void onAddUserClick() {
         try {
-            Files.writeString(USERS_PATH, newUserName.getText() + System.lineSeparator(), StandardOpenOption.APPEND);
+            if (!isLoginUnique(newUserName.getText())) {
+                message.setText("Такое имя пользователя\nуже существует");
+                return;
+            }
+            Files.writeString(USERS_PATH, newUserName.getText() + " false true" + System.lineSeparator(), StandardOpenOption.APPEND);
+            message.setText("Пользователь " + newUserName.getText() + " добавлен");
         } catch (IOException e) {
             message.setText("Ошибка при записи нового пользователя в файл");
         }
+
     }
 
     @FXML
     private void onCancelAddUserClick() {
+        newUserName.setText("");
+        message.setText("");
         addUserPanel.setVisible(false);
-        adminPanel.setVisible(true);
+        panel.setVisible(true);
+    }
+
+    private void initUserForm() {
+        message.setText("Придумайте пароль");
+        loginForm.setVisible(false);
+        passwordChangeForm.setVisible(true);
+        oldPassword.setVisible(false);
+        cancelChangePassword.setVisible(false);
     }
 
     private void changeUserPassword (String newPassword)
@@ -284,7 +336,12 @@ public class LoginController {
                 String line = lines.get(i);
                 String[] parts = line.split(" ");
                 if (parts[0].equals(user.getLogin())) {
-                    lines.set(i, parts[0] + " " + newPassword + " " + parts[2] + " " + parts[3]);
+                    if (parts.length == 4)
+                        lines.set(i, parts[0] + " " + newPassword + " " + parts[2] + " " + parts[3]);
+
+                    else if (parts.length == 3)
+                        lines.set(i, parts[0] + " " + newPassword + " " + parts[1] + " " + parts[2]);
+
                     user.setPassword(newPassword);
                     rewriteFile(lines);
                     break;
@@ -326,6 +383,15 @@ public class LoginController {
             }
         }
         return hasNum && hasLower && hasUpper;
+    }
+
+    private boolean isLoginUnique (String login) {
+        List<User> users = getUsers();
+        for (User user : users) {
+            if (user.getLogin().equals(login))
+                return false;
+        }
+        return true;
     }
 
 
