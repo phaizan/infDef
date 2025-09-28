@@ -1,11 +1,6 @@
 login   password    isBlocked?      passwordRestrctions   (Наличие строчных и прописных букв, а также цифр.)
-a 1 false false
-phzn nzhp true false
+ADMIN 1 false false
+phzn ppzh false false
 bork 12Aa false true
-andrey b0rK false false
+andrey false false
 v1ka b0rK false true
-zaluper228 2qE false true
-pidora 123aA false true
-gan   false true
-aaaaa qwe2 false false
-aaaaaaaaaaaa false true

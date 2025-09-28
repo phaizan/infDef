@@ -19,6 +19,8 @@ public class LoginController {
 
     private User user;
 
+    int failedAttempts = 0;
+
     @FXML
     public TextField login;
 
@@ -111,6 +113,8 @@ public class LoginController {
         if (user != null)
             if (user.isBlocked()) {
                 message.setText("Вы заблокированы");
+                login.setText("");
+                password.setText("");
             }
             else if (user.getPassword() == null) {
                 if (!password.getText().isEmpty()) {
@@ -120,7 +124,9 @@ public class LoginController {
                 initUserForm();
             }
             else if (!user.getPassword().equals(password.getText())) {
-                message.setText("Введён неправильный пароль");
+                if (++failedAttempts > 2)
+                    System.exit(0);
+                message.setText("Введён неправильный пароль\nОсталось " + (3 - failedAttempts) + (3 - failedAttempts == 1 ? " попытка" : " попытки"));
             }
             else {
                 message.setText("");
@@ -164,7 +170,7 @@ public class LoginController {
     }
 
     private void showPanel() {
-        if (user.getLogin().equals("a")) {
+        if (user.getLogin().equals("ADMIN")) {
             checkUsers.setVisible(true);
             createUser.setVisible(true);
         }
@@ -195,6 +201,9 @@ public class LoginController {
                     passwordChangeForm.setVisible(false);
                     showPanel();
                     message.setText("Пароль изменён");
+                    oldPassword.setText("");
+                    newPassword.setText("");
+                    passwordVerification.setText("");
                 }
                 else {
                     message.setText("Пароль не соответствует\nтребованиям");
@@ -204,9 +213,6 @@ public class LoginController {
                 message.setText("Новые пароли не совпадают");
         else
             message.setText("Неправильно введён старый пароль");
-        oldPassword.setText("");
-        newPassword.setText("");
-        changePasswordConfirm.setText("");
     }
 
     @FXML
@@ -221,12 +227,14 @@ public class LoginController {
 
     @FXML
     private void onExitClick() {
+        loginButton.setUserData(0);
         user = null;
         login.setText("");
         password.setText("");
         message.setText("");
         panel.setVisible(false);
         loginForm.setVisible(true);
+        failedAttempts = 0;
     }
 
     @FXML
